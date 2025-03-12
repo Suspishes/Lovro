@@ -29,9 +29,10 @@ model Izdelki {
   IzdelkiID  Int  @id @default(autoincrement())
   Ime String
   Opis String?
-  Cena Int?
+  Cena Int
   Proizvajalec String
   Slika String
+  Kolicina Int
 }
 
 
