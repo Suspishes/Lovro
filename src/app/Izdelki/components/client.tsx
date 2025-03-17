@@ -13,6 +13,8 @@ import {
   Container
 } from "@mui/material"
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import type { Izdelek } from '../../kosarica/components/backend';
+
 
 const theme = createTheme({
   palette: {
@@ -29,7 +31,7 @@ const theme = createTheme({
 })
 
 export default function IzdelkiList() {
-  const { data: izdelki, isLoading, error } = useQuery({
+  const { data: izdelki, isLoading, error } = useQuery<Izdelek[]>({
     queryKey: ['izdelki'],
     queryFn: () => getAllIzdelki(),
   })
@@ -47,9 +49,9 @@ export default function IzdelkiList() {
   if (isLoading) return <Typography>Nalaganje...</Typography>
   if (error instanceof Error) return <Typography>{error.message}</Typography>
 
-  const filteredIzdelki = izdelki.filter((izdelek: { Ime: string }) =>
+  const filteredIzdelki = izdelki?.filter((izdelek: { Ime: string }) =>
     izdelek.Ime.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  ) ?? []
 
   return (
     <ThemeProvider theme={theme}>

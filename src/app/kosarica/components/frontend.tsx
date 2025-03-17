@@ -13,28 +13,18 @@ import {
   Paper,
   IconButton
 } from "@mui/material"
-import { useKosaricaStore, Izdelek} from './backend'
+import { useKosaricaStore, Izdelek } from './backend'
 
 export default function KosaricaPage() {
-    // Pridobitev podatkov iz košarice
-    const [kosarica, setKosarica] = useKosaricaStore((state) => [state.kosarica, state.kosarica])
+  // Pridobitev podatkov iz košarice
+  const kosarica = useKosaricaStore((state) => state.kosarica);
 
-    const odstraniIzdelek = useKosaricaStore((state) => state.odstraniIzdelek);
-    const povecajKolicino = useKosaricaStore((state) => state.povecajKolicino);
-    const zmanjsajKolicino = useKosaricaStore((state) => (id: number) => state.zmanjsajKolicino(id));
-
-
-
-
-
-
-
+  const odstraniIzdelek = useKosaricaStore((state) => state.odstraniIzdelek);
+  const povecajKolicino = useKosaricaStore((state) => state.povecajKolicino);
+  const zmanjsajKolicino = useKosaricaStore((state) => state.zmanjsajKolicino);
 
   // Izračun skupne cene
-  const skupnaCena = kosarica.reduce((total, izdelek) => total + izdelek.Cena * izdelek.Kolicina, 0)
-
-  // Funkcija za povečanje količine
-  
+  const skupnaCena = kosarica.reduce((total, izdelek) => total + izdelek.Cena * izdelek.KolicinaVKosarici, 0)
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -81,7 +71,7 @@ export default function KosaricaPage() {
                       <Minus />
                     </IconButton>
                     <Typography variant="body1" sx={{ mx: 2, fontWeight: 'bold' }}>
-                      {izdelek.Kolicina}
+                      {izdelek.KolicinaVKosarici}
                     </Typography>
                     <IconButton sx={{ color: '#6CA748' }} onClick={() => povecajKolicino(izdelek.IzdelkiID)}>
                       <Plus />

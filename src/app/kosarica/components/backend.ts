@@ -6,16 +6,18 @@ export type Izdelek = {
     IzdelkiID: number;
     Ime: string;
     Cena: number;
-    Kategorija: string;
+    Proizvajalec: string;
     Slika: string;
     Opis: string;
-    Kolicina: number;
+    KolicinaNaZalogi: number;
+    KolicinaVKosarici: number;
+
 };
 
 interface KosaricaState {
     kosarica: Izdelek[];
     dodajIzdelek: (izdelek: Izdelek) => void;
-    odstraniIzdelek: (izdelek: Izdelek) => void;
+    odstraniIzdelek: (izdelek: number) => void;
     povecajKolicino: (izdelekID: number) => void;
     zmanjsajKolicino: (izdelekID: number) => void;
 };
@@ -25,21 +27,21 @@ const initialState = {
 };
 
 const Kosarica: StateCreator<KosaricaState> = (set) => ({
-    kosarica: [],
+    ...initialState,
     dodajIzdelek: (izdelek: Izdelek) => set((state: KosaricaState) => produce(state, (draft: KosaricaState) => {
         const izdelekIndex = draft.kosarica.findIndex((i: Izdelek) => i.IzdelkiID === izdelek.IzdelkiID);
-        if (izdelekIndex === -1) {
-            draft.kosarica.push({ ...izdelek, Kolicina: 1 });
+        if (izdelekIndex == -1) {
+            draft.kosarica.push({ ...izdelek, KolicinaVKosarici: 1 });
         } else {
             if (izdelekIndex !== -1) {
                 if (draft.kosarica[izdelekIndex]) {
-                    draft.kosarica[izdelekIndex].Kolicina += 1;
+                    draft.kosarica[izdelekIndex].KolicinaVKosarici += 1;
                 }
             }
         }
     })),
-    odstraniIzdelek: (izdelek: Izdelek) => set((state: KosaricaState) => produce(state, (draft: KosaricaState) => {
-        const izdelekIndex = draft.kosarica.findIndex((i: Izdelek) => i.IzdelkiID === izdelek.IzdelkiID);
+    odstraniIzdelek: (izdelek: number) => set((state: KosaricaState) => produce(state, (draft: KosaricaState) => {
+        const izdelekIndex = draft.kosarica.findIndex((i: Izdelek) => i.IzdelkiID === izdelek);
         if (izdelekIndex !== -1) {
             draft.kosarica.splice(izdelekIndex, 1);
         }
@@ -47,13 +49,13 @@ const Kosarica: StateCreator<KosaricaState> = (set) => ({
     povecajKolicino: (izdelekID: number) => set((state: KosaricaState) => produce(state, (draft: KosaricaState) => {
         const izdelekIndex = draft.kosarica.findIndex((i: Izdelek) => i.IzdelkiID === izdelekID);
         if (izdelekIndex !== -1 && draft.kosarica[izdelekIndex]) {
-            draft.kosarica[izdelekIndex].Kolicina += 1;
+            draft.kosarica[izdelekIndex].KolicinaVKosarici += 1;
         }
     })),
     zmanjsajKolicino: (izdelekID: number) => set((state: KosaricaState) => produce(state, (draft: KosaricaState) => {
         const izdelekIndex = draft.kosarica.findIndex((i: Izdelek) => i.IzdelkiID === izdelekID);
-        if (izdelekIndex !== -1 && draft.kosarica[izdelekIndex] && draft.kosarica[izdelekIndex].Kolicina > 1) {
-            draft.kosarica[izdelekIndex].Kolicina -= 1;
+        if (izdelekIndex !== -1 && draft.kosarica[izdelekIndex] && draft.kosarica[izdelekIndex].KolicinaVKosarici > 1) {
+            draft.kosarica[izdelekIndex].KolicinaVKosarici -= 1;
         }
     })),
 });

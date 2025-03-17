@@ -14,6 +14,8 @@ import {
 } from "@mui/material"
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 
+import { Izdelek, useKosaricaStore } from '~/app/kosarica/components/backend'
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -28,8 +30,8 @@ const theme = createTheme({
   },
 })
 
-export default function IzdelekDetailPage({ izdelek }: { izdelek: any }) {
-  // Če izdelek ne obstaja, prikažite sporočilo
+export default function IzdelekDetailPage({ izdelek }: { izdelek: Izdelek }) {
+  const dodajIzdelek = useKosaricaStore((state) => state.dodajIzdelek)
   if (!izdelek) {
     return (
       <ThemeProvider theme={theme}>
@@ -132,6 +134,8 @@ export default function IzdelekDetailPage({ izdelek }: { izdelek: any }) {
                   fullWidth
                   startIcon={<ShoppingCart />}
                   sx={{ color: 'common.white', py: 2, fontSize: '1.25rem' }}
+                  onClick={() => dodajIzdelek(izdelek)
+                  }
                 >
                   Dodaj v košarico
                 </Button>
