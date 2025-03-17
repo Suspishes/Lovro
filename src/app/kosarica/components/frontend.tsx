@@ -57,7 +57,7 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
         return
       }
 
-      const response = await fetch('/api/create-payment-intent', {
+      const response = await fetch('/api/create-payment-intent', {/// tole pa manka
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
