@@ -20,6 +20,7 @@ interface KosaricaState {
     odstraniIzdelek: (izdelek: number) => void;
     povecajKolicino: (izdelekID: number) => void;
     zmanjsajKolicino: (izdelekID: number) => void;
+    izprazniKosarico: () => void;
 };
 
 const initialState = {
@@ -58,6 +59,7 @@ const Kosarica: StateCreator<KosaricaState> = (set) => ({
             draft.kosarica[izdelekIndex].KolicinaVKosarici -= 1;
         }
     })),
+    izprazniKosarico: () => set(() => initialState),
 });
 
 export const useKosaricaStore = create<KosaricaState>()(
