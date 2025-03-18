@@ -2,105 +2,49 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-}
-
-model Clanki {
-  ClankiID  Int  @id @default(autoincrement())
-  Ime String
-  Opis String?
-  Slika String
-  Url String
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Storitve {
-  StoritveID  Int  @id @default(autoincrement())
-  Ime String
-  Opis String?
-  Cena Int?
+  StoritveID Int     @id @default(autoincrement())
+  Ime        String
+  Opis       String?
+  Cena       Int?
 }
 
 model Izdelki {
-  IzdelkiID  Int  @id @default(autoincrement())
-  Ime String
-  Opis String?
-  Cena Int
+  IzdelkiID    Int     @id @default(autoincrement())
+  Ime          String
+  Opis         String?
+  Cena         Int
   Proizvajalec String
-  Slika String
-  Kolicina Int
+  Slika        String
+  Kolicina     Int
+
+  Narocila Narocila[]
 }
 
-
-
-
-
-
-model ProductCategory {
-  CategoryID   Int    @id @default(autoincrement())
-  Name         String
-  Description  String?
-  Products     Product[]
+model Stranka {
+  StrankaID Int        @id @default(autoincrement())
+  Ime       String
+  Priimek   String
+  Email     String?    @unique
+  Telefon   String?
+  Naslov    String?
+  Narocila  Narocila[]
 }
 
-model Product {
-  ProductID   Int     @id @default(autoincrement())
-  Name        String
-  Description String?
-  Price       Decimal @db.Decimal(10,2)
-  CategoryID  Int?
-  Category    ProductCategory? @relation(fields: [CategoryID], references: [CategoryID])
-  OrderedProducts OrderedProduct[]
+model Narocila {
+  NarociloID Int       @id @default(autoincrement())
+  StrankaID  Int
+  Datum      DateTime
+  Status     String
+  Cena       Decimal
+  Stranka    Stranka   @relation(fields: [StrankaID], references: [StrankaID])
+  Izdelki    Izdelki[]
 }
-
-model Service {
-  ServiceID   Int    @id @default(autoincrement())
-  Name        String
-  Description String?
-  Price       Decimal @db.Decimal(10,2)
-  OrderedServices OrderedService[]
-}
-
-model Customer {
-  CustomerID   Int    @id @default(autoincrement())
-  FirstName    String
-  LastName     String
-  Email        String?
-  PhoneNumber  String?
-  Address      String?
-  Orders       Order[]
-}
-
-model Order {
-  OrderID      Int      @id @default(autoincrement())
-  CustomerID   Int
-  OrderDate    DateTime
-  Status       String
-  Customer     Customer @relation(fields: [CustomerID], references: [CustomerID])
-  OrderedProducts OrderedProduct[]
-  OrderedServices OrderedService[]
-}
-
-model OrderedProduct {
-  OrderID    Int
-  ProductID  Int
-  Quantity   Int
-  Price      Decimal @db.Decimal(10,2)
-  Order      Order    @relation(fields: [OrderID], references: [OrderID])
-  Product    Product  @relation(fields: [ProductID], references: [ProductID])
-  @@id([OrderID, ProductID])
-}
-
-model OrderedService {
-  OrderID   Int
-  ServiceID Int
-  Price     Decimal @db.Decimal(10,2)
-  Order     Order   @relation(fields: [OrderID], references: [OrderID])
-  Service   Service @relation(fields: [ServiceID], references: [ServiceID])
-  @@id([OrderID, ServiceID])
-}
-
