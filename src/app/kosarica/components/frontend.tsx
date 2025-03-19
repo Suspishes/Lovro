@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowLeft, ShoppingCart, Trash, Plus, Minus } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Trash, Plus, Minus, Facebook, MenuIcon, Phone } from 'lucide-react'
 import {
   Box,
   Typography,
@@ -31,27 +31,11 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js'
-<<<<<<< HEAD
-import { Email, Facebook, LocationOn, Phone, Close as CloseIcon, Menu as MenuIcon } from '@mui/icons-material'
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#6CA748',
-    },
-    secondary: {
-      main: '#5A8E3A',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-  },
-});
-=======
 import { saveOrderAndCustomer } from './serverside'
 import type { Izdelki, Narocila, Stranka } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
->>>>>>> 544aea2 (Reality je najjaca muska)
+import { Email, LocationOn, Close as CloseIcon } from '@mui/icons-material'
+const theme = createTheme();
 
 const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY!);
 
@@ -291,7 +275,7 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
 
 export default function KosaricaPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery((theme: { breakpoints: { down: (key: string) => string } }) => theme.breakpoints.down('md'));
 
   const kosarica = useKosaricaStore((state) => state.kosarica)
   const odstraniIzdelek = useKosaricaStore((state) => state.odstraniIzdelek)
@@ -537,29 +521,6 @@ export default function KosaricaPage() {
                 justifyContent: 'center'
               }}
             >
-<<<<<<< HEAD
-              <Box
-                sx={{
-                  bgcolor: 'white',
-                  p: 4,
-                  borderRadius: 2,
-                  maxWidth: 500,
-                  width: '90%',
-                  position: 'relative'
-                }}
-              >
-                <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
-                  Plačilo s kreditno kartico
-                </Typography>
-                <Elements stripe={stripePromise}>
-                  <StripeCheckoutForm
-                    skupnaCena={skupnaCena}
-                    onSuccess={handlePaymentSuccess}
-                    onClose={() => setShowCheckout(false)}
-                  />
-                </Elements>
-              </Box>
-=======
               <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
                 Plačilo s kreditno kartico
               </Typography>
@@ -570,7 +531,6 @@ export default function KosaricaPage() {
                   onClose={() => setShowCheckout(false)}
                 />
               </Elements>
->>>>>>> 544aea2 (Reality je najjaca muska)
             </Box>
           )
         }
@@ -595,7 +555,10 @@ export default function KosaricaPage() {
             <Grid item xs={12} md={4}>
               <Typography variant="body2" align="right">
                 <Link href="tel:041726602" color="inherit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  <Phone sx={{ mr: 1 }} /> 041 726 602
+                  <Box sx={{ mr: 1, display: 'inline-flex' }}>
+                    <Phone />
+                  </Box>
+                  041 726 602
                 </Link>
               </Typography>
               <Typography variant="body2" align="right">
@@ -606,7 +569,7 @@ export default function KosaricaPage() {
               <Typography variant="body2" align="right">
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                   <Link href="https://www.facebook.com/parketarstvoravbar" target="_blank" rel="noopener noreferrer" color="inherit">
-                    <Facebook sx={{ mr: 1 }} /> Facebook
+                    <Facebook style={{ marginRight: '8px' }} /> Facebook
                   </Link>
                 </Box>
               </Typography>
