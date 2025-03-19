@@ -35,9 +35,12 @@ import { saveOrderAndCustomer } from './serverside'
 import type { Izdelki, Narocila, Stranka } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
 import { Email, LocationOn, Close as CloseIcon } from '@mui/icons-material'
+import { useTheme } from '@mui/material';
+import { useQuery } from '@tanstack/react-query'
+import { Vstavljanje_podatkov } from './testeram'
 const theme = createTheme();
 
-const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface StripeCheckoutFormProps {
   skupnaCena: number;
@@ -45,7 +48,7 @@ interface StripeCheckoutFormProps {
   onClose: () => void;
 }
 
-interface AddressFormData {
+export interface AddressFormData {
   name: string;
   surname: string;
   street: string;
@@ -57,10 +60,10 @@ interface AddressFormData {
 }
 
 const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFormProps) => {
-  const stripe = useStripe()
-  const elements = useElements()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState<AddressFormData>({
     name: '',
     surname: '',
@@ -69,35 +72,43 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
     postalCode: '',
     country: 'SI',
     email: '',
-    phone: ''
+    phone: '',
   });
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress({
       ...address,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!stripe || !elements) return
+    event.preventDefault();
+    if (!stripe || !elements) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const cardElement = elements.getElement(CardElement)
-      if (!cardElement) throw new Error('Card element not found')
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) throw new Error('Card element not found');
 
-      // Create payment method
       const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: cardElement,
-        billing_details: { /* ... */ }
-      })
+        billing_details: {
+          name: `${address.name} ${address.surname}`,
+          email: address.email,
+          phone: address.phone,
+          address: {
+            line1: address.street,
+            city: address.city,
+            postal_code: address.postalCode,
+            country: address.country,
+          },
+        },
+      });
 
-      if (pmError ?? !paymentMethod?.id) throw pmError ?? new Error('Payment method creation failed')
+      if (pmError ?? !paymentMethod?.id) throw pmError ?? new Error('Payment method creation failed');
 
-      // Call your backend
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,42 +116,34 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
           amount: skupnaCena,
           paymentMethodId: paymentMethod.id,
           email: address.email,
-          metadata: { /* ... */ }
-        })
-      })
+        }),
+      });
 
       if (!response.ok) {
-        const contentType = response.headers.get('Content-Type')
-        if (contentType?.includes('application/json')) {
-          const errorData = await response.json() as { error?: string }
-          throw new Error(errorData.error ?? 'Payment failed')
-        } else {
-          throw new Error('Unexpected response from server')
-        }
+        const errorData = await response.json() as { error?: string };
+        throw new Error(errorData.error ?? 'Payment failed');
       }
 
-      const result = await response.json() as { requiresAction: boolean, clientSecret: string, error?: string }
-
+      const result = await response.json() as { requiresAction: boolean, clientSecret: string };
       if (result.requiresAction) {
-        // Handle 3D Secure authentication
-        const { error: confirmError } = await stripe.confirmCardPayment(result.clientSecret)
-        if (confirmError) throw confirmError
+        const { error: confirmError } = await stripe.confirmCardPayment(result.clientSecret);
+        if (confirmError) throw confirmError;
       }
 
-      // Success logic
-      onSuccess(address)
-
+      onSuccess(address);
     } catch (err) {
-      setError((err as Error).message)
+      setError((err as Error).message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} style={{ width: '100%' }}>
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Dostavni podatki</Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Dostavni podatki
+        </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -226,16 +229,23 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
             />
           </Grid>
         </Grid>
-        <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>Podatki o kreditni kartici</Typography>
+        <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+          Podatki o kreditni kartici
+        </Typography>
         <CardElement
           options={{
             style: {
               base: {
                 fontSize: '16px',
                 color: '#1f2937',
-                '::placeholder': { color: '#a0aec0' }
-              }
-            }
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                '::placeholder': { color: '#a0aec0' },
+              },
+              invalid: {
+                color: '#e53935',
+              },
+            },
+            hidePostalCode: true, // Optional: Hides the postal code field
           }}
         />
       </Box>
@@ -263,63 +273,41 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
             color: 'white',
             bgcolor: '#6CA748',
             '&:hover': { bgcolor: '#5A8E3A' },
-            textTransform: 'none'
+            textTransform: 'none',
           }}
         >
-          {loading ? 'Procesiram...' : `Plačaj ${skupnaCena.toFixed(2).replace(".", ",")} €`}
+          {loading ? 'Procesiram...' : `Plačaj ${skupnaCena.toFixed(2).replace('.', ',')} €`}
         </Button>
       </Box>
     </form>
-  )
-}
+  );
+};
 
 export default function KosaricaPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useMediaQuery((theme: { breakpoints: { down: (key: string) => string } }) => theme.breakpoints.down('md'));
-
-  const kosarica = useKosaricaStore((state) => state.kosarica)
+  const [showCheckout, setShowCheckout] = useState(false);
+  const kosarica = useKosaricaStore((state) => state.kosarica);
   const odstraniIzdelek = useKosaricaStore((state) => state.odstraniIzdelek)
   const povecajKolicino = useKosaricaStore((state) => state.povecajKolicino)
   const zmanjsajKolicino = useKosaricaStore((state) => state.zmanjsajKolicino)
   const izprazniKosarico = useKosaricaStore((state) => state.izprazniKosarico)
-  const [showCheckout, setShowCheckout] = useState(false)
 
-  const skupnaCena = kosarica.reduce((total, izdelek) =>
-    total + izdelek.Cena * izdelek.KolicinaVKosarici, 0
-  )
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const skupnaCena = kosarica.reduce((total, izdelek) => total + izdelek.Cena * izdelek.KolicinaVKosarici, 0);
 
   const handlePaymentSuccess = async (customerData: AddressFormData) => {
     setShowCheckout(false);
-
     try {
-      // Prepare customer data
-      const stranka: Stranka = {
-        Ime: customerData.name,
-        Priimek: customerData.surname,
-        Telefon: customerData.phone,
-        Naslov: `${customerData.street}, ${customerData.postalCode} ${customerData.city}`,
-        Email: customerData.email,
-        StrankaID: 0 // Will be generated by DB
-      };
-
-      // Prepare order data
-      const order: Narocila = {
-        NarociloID: 0, // Will be generated by DB
-        StrankaID: 0, // Will be set by saveOrderAndCustomer
-        Datum: new Date(),
-        Status: 'Plačano',
-        Cena: new Decimal(skupnaCena),
-      };
-
-      // Prepare products data
-      const izdelki: Izdelki[] = kosarica.map(item => ({
-        ...item,
-        Kolicina: item.KolicinaVKosarici
-      }));
-
-      // Save to database
-      await saveOrderAndCustomer(stranka, order, izdelki);
-
+      await Vstavljanje_podatkov(
+        customerData,
+        kosarica.map((item) => ({
+          ...item,
+          Kolicina: item.KolicinaVKosarici,
+        })),
+        skupnaCena
+      );
       izprazniKosarico();
       alert('Plačilo uspešno! Hvala za nakup.');
     } catch (error) {
@@ -521,16 +509,18 @@ export default function KosaricaPage() {
                 justifyContent: 'center'
               }}
             >
-              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
-                Plačilo s kreditno kartico
-              </Typography>
-              <Elements stripe={stripePromise}>
-                <StripeCheckoutForm
-                  skupnaCena={skupnaCena}
-                  onSuccess={(address) => handlePaymentSuccess(address)}
-                  onClose={() => setShowCheckout(false)}
-                />
-              </Elements>
+              <Paper sx={{ p: 4, maxWidth: 600, width: '100%' }}>
+                <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
+                  Plačilo s kreditno kartico
+                </Typography>
+                <Elements stripe={stripePromise}>
+                  <StripeCheckoutForm
+                    skupnaCena={skupnaCena}
+                    onSuccess={(address) => handlePaymentSuccess(address)}
+                    onClose={() => setShowCheckout(false)}
+                  />
+                </Elements>
+              </Paper>
             </Box>
           )
         }
@@ -587,7 +577,7 @@ export default function KosaricaPage() {
           </Box>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
-              &copy; {new Date().getFullYear()} parket-ravbar.com | <Link href="/piskotki" color="inherit">Piškotki</Link>
+              {/* &copy; {new Date().getFullYear()} parket-ravbar.com | <Link href="/piskotki" color="inherit">Piškotki</Link> */}
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
               Lovro Ravbar
