@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useFormState, useFormStatus } from 'react-dom';
+import { sendEmail } from './send-emails';
+import { toast } from 'sonner';
 import {
   AppBar,
   Toolbar,
@@ -27,7 +30,7 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
   Phone,
-  Email,
+  Email as EmailIcon,
   Facebook,
   LocationOn,
   ExpandMore,
@@ -45,39 +48,41 @@ const theme = createTheme({
 const faqItems = [
   {
     question: 'Kakšna je garancija na vaše storitve?',
-    answer:
-      'Na vse naše storitve nudimo 2-letno garancijo. Za specifične izdelke lahko velja daljša garancijska doba proizvajalca.',
+    answer: 'Na vse naše storitve nudimo 2-letno garancijo. Za specifične izdelke lahko velja daljša garancijska doba proizvajalca.',
   },
   {
     question: 'Koliko časa traja polaganje parketa?',
-    answer:
-      'Čas polaganja je odvisen od velikosti prostora in vrste parketa. V povprečju lahko za stanovanje velikosti 60-80 m² računate na 1-2 dni dela.',
+    answer: 'Čas polaganja je odvisen od velikosti prostora in vrste parketa. V povprečju lahko za stanovanje velikosti 60-80 m² računate na 1-2 dni dela.',
   },
   {
     question: 'Ali izvajate brezplačne oglede?',
-    answer:
-      'Da, za vse večje projekte izvajamo brezplačne oglede na lokaciji. Tako lahko natančno ocenimo obseg dela in pripravimo točno ponudbo.',
+    answer: 'Da, za vse večje projekte izvajamo brezplačne oglede na lokaciji. Tako lahko natančno ocenimo obseg dela in pripravimo točno ponudbo.',
   },
   {
     question: 'Katere vrste lesa priporočate za parket?',
-    answer:
-      'Najpogosteje priporočamo hrast, bukev in jesen zaradi njihove trpežnosti in estetike. Izbira je odvisna od vaših preferenc in namembnosti prostora.',
+    answer: 'Najpogosteje priporočamo hrast, bukev in jesen zaradi njihove trpežnosti in estetike. Izbira je odvisna od vaših preferenc in namembnosti prostora.',
   },
 ];
 
 export default function Kontakt() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [state, formAction] = useFormState(sendEmail, null);
+  const { pending } = useFormStatus();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('Form submitted');
-  };
+  useEffect(() => {
+    if (state?.success) {
+      toast.success('Sporočilo uspešno poslano!');
+      const form = document.getElementById('contact-form') as HTMLFormElement;
+      form?.reset();
+    }
+    if (state?.error) toast.error(state.error);
+  }, [state]);
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
+        <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Box sx={{ flexGrow: 1, mx: -22, display: 'flex', justifyContent: 'flex-start' }}>
@@ -98,7 +103,7 @@ export default function Kontakt() {
                 </IconButton>
               ) : (
                 <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
-                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
                     <Button
                       key={text}
                       component={Link}
@@ -128,11 +133,7 @@ export default function Kontakt() {
           </Container>
         </AppBar>
 
-        <Drawer
-          anchor="right"
-          open={isMobile && isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-        >
+        <Drawer anchor="right" open={isMobile && isMenuOpen} onClose={() => setIsMenuOpen(false)}>
           <List>
             {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
               <ListItem
@@ -148,14 +149,7 @@ export default function Kontakt() {
         </Drawer>
 
         <main>
-          <Box
-            sx={{
-              bgcolor: '#1f2937',
-              color: 'white',
-              py: 8,
-              textAlign: 'center',
-            }}
-          >
+          <Box sx={{ bgcolor: '#1f2937', color: 'white', py: 8, textAlign: 'center' }}>
             <Container>
               <Typography variant="h3" gutterBottom>
                 Stopite v stik z nami
@@ -189,7 +183,7 @@ export default function Kontakt() {
               <Grid item xs={12} md={4}>
                 <Card>
                   <CardContent sx={{ textAlign: 'center' }}>
-                    <Email color="primary" fontSize="large" />
+                    <EmailIcon color="primary" fontSize="large" />
                     <Typography variant="h6">E-pošta</Typography>
                     <Typography>info@parket-ravbar.com</Typography>
                   </CardContent>
@@ -213,22 +207,30 @@ export default function Kontakt() {
                 <Typography variant="h5" gutterBottom>
                   Pošljite nam sporočilo
                 </Typography>
-                <form onSubmit={handleSubmit}>
+                <form id="contact-form" action={formAction}>
                   <TextField
+                    name="name"
                     label="Ime in priimek"
                     fullWidth
                     required
                     sx={{ mb: 2 }}
                   />
                   <TextField
+                    name="email"
                     label="E-pošta"
                     type="email"
                     fullWidth
                     required
                     sx={{ mb: 2 }}
                   />
-                  <TextField label="Telefon" fullWidth sx={{ mb: 2 }} />
                   <TextField
+                    name="phone"
+                    label="Telefon"
+                    fullWidth
+                    sx={{ mb: 2 }}
+                  />
+                  <TextField
+                    name="message"
                     label="Sporočilo"
                     multiline
                     rows={4}
@@ -240,9 +242,10 @@ export default function Kontakt() {
                     type="submit"
                     variant="contained"
                     fullWidth
+                    disabled={pending}
                     sx={{ bgcolor: 'primary.main', color: "white" }}
                   >
-                    Pošlji sporočilo
+                    {pending ? 'Pošiljanje...' : 'Pošlji sporočilo'}
                   </Button>
                 </form>
               </Grid>
@@ -270,9 +273,7 @@ export default function Kontakt() {
           <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
             <Grid container spacing={4}>
               <Grid item xs={12} md={4}>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  Parketarstvo Ravbar
-                </Typography>
+                <Typography sx={{ fontWeight: 'bold' }}>Parketarstvo Ravbar</Typography>
                 <Typography variant="body2">
                   K Roku 139
                   <br />
@@ -290,13 +291,13 @@ export default function Kontakt() {
                 </Typography>
                 <Typography variant="body2" align="right">
                   <Link href="mailto:info@parket-ravbar.com" color="inherit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <Email sx={{ mr: 1 }} /> info@parket-ravbar.com
+                    <EmailIcon sx={{ mr: 1 }} /> info@parket-ravbar.com
                   </Link>
                 </Typography>
                 <Typography variant="body2" align="right">
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                     <Link href="https://www.facebook.com/parketarstvoravbar" target="_blank" rel="noopener noreferrer" color="inherit">
-                      <Facebook sx={{ mr: 1}} /> Facebook
+                      <Facebook sx={{ mr: 1 }} /> Facebook
                     </Link>
                   </Box>
                 </Typography>
@@ -308,9 +309,7 @@ export default function Kontakt() {
               </Grid>
             </Grid>
             <Box sx={{ mt: 4, textAlign: 'center' }}>
-              <Typography variant="h6">
-                LES JE NARAVEN, PUSTIMO DA TAK TUDI OSTANE
-              </Typography>
+              <Typography variant="h6">LES JE NARAVEN, PUSTIMO DA TAK TUDI OSTANE</Typography>
             </Box>
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2">
