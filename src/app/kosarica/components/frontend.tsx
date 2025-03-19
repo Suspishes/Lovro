@@ -13,7 +13,7 @@ import {
   Paper,
   IconButton,
   TextField,
-  createTheme,
+
   useMediaQuery,
   ThemeProvider,
   AppBar,
@@ -31,14 +31,12 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js'
-import { saveOrderAndCustomer } from './serverside'
-import type { Izdelki, Narocila, Stranka } from '@prisma/client'
-import { Decimal } from '@prisma/client/runtime/library'
+
+
 import { Email, LocationOn, Close as CloseIcon } from '@mui/icons-material'
 import { useTheme } from '@mui/material';
-import { useQuery } from '@tanstack/react-query'
 import { Vstavljanje_podatkov } from './testeram'
-const theme = createTheme();
+
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
