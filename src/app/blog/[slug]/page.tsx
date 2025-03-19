@@ -25,7 +25,7 @@ export default async function Page({
 }
 
 export function generateStaticParams() {
-    return [{ slug: 'clanek1' }]
+    return [{ slug: 'clanek1' },{ slug: 'clanek2' },{ slug: 'clanek3' },{ slug: 'clanek4' }]
 }
 
 export const dynamicParams = false

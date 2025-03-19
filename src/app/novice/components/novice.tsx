@@ -49,28 +49,29 @@ export default function Novice() {
       excerpt: 'Oljen parket je vedno bolj priljubljena izbira. Odkrijte njegove prednosti, od naravnega videza do enostavnega vzdrževanja, in zakaj je odlična izbira za vaš dom.',  
       date: '2024-11-21',  
       image: '/test_slika_1.jpg?height=200&width=300',  
-      slug: 'kako-izbrati-pravi-parket'
+      slug: 'kako-izbrati-pravi-parket',
+      link: 'clanek1'
     },
     {
       title: 'Pravilno vzdrževanje parketa v poletnih mesecih',
       excerpt: 'Poletje prinaša posebne izzive za vaš parket. V tem članku vam predstavljamo nasvete za ohranjanje lepote vašega parketa med vročimi poletnimi dnevi.',
       date: '2024-06-01',
       image: '/test_slika_2.jpg?height=200&width=300',
-      slug: 'vzdrzevanje-parketa-poleti'
+      link: 'clanek2'
     },
     {
       title: 'Prednosti oljenega parketa: zakaj ga izbrati?',
       excerpt: 'Oljen parket je vedno bolj priljubljena izbira. Odkrijte njegove prednosti, od naravnega videza do enostavnega vzdrževanja, in zakaj je odlična izbira za vaš dom.',
       date: '2024-04-30',
       image: '/test_slika_2.jpg?height=200&width=300',
-      slug: 'prednosti-oljenega-parketa'
+      link: 'clanek3'
     },
     {
       title: 'Novi trendi v parketarstvu za leto 2024',
       excerpt: 'Odkrijte najnovejše trende v svetu parketa in lesenih talnih oblog za leto 2024. Od naravnih tonov do inovativnih vzorcev, predstavljamo vam, kaj bo v trendu v prihajajočem letu.',
       date: '2024-01-15',
       image: '/test_slika_1.jpg?height=200&width=300',
-      slug: 'novi-trendi-v-parketarstvu-2024'
+      link: 'clanek4'
     },
   ];
 
@@ -203,7 +204,7 @@ export default function Novice() {
                           <CalendarToday sx={{ fontSize: 'small', mr: 0.5 }} />
                           {new Date(article.date).toLocaleDateString('sl-SI')}
                         </Typography>
-                        <Link href={`/novice/${article.slug}`} passHref>
+                        <Link href={`/blog/${article.link}`} passHref>
                           <Button size="small" color="primary">
                             Preberi več
                           </Button>

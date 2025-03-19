@@ -3,8 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowLeft, ShoppingCart, Trash, Plus, Minus, Facebook, Phone } from 'lucide-react'
-import { Menu as MenuIcon } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Trash, Plus, Minus} from 'lucide-react'
 import {
   Box,
   Typography,
@@ -34,7 +33,7 @@ import {
 } from '@stripe/react-stripe-js'
 
 
-import { Email, LocationOn, Close as CloseIcon } from '@mui/icons-material'
+import { Menu as MenuIcon, Close as CloseIcon, Phone, Email, Facebook, LocationOn } from '@mui/icons-material';
 import { useTheme } from '@mui/material';
 import { Vstavljanje_podatkov } from './testeram'
 
@@ -271,7 +270,7 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
           sx={{
             color: 'white',
             bgcolor: '#6CA748',
-            '&:hover': { bgcolor: '#5A8E3A' },
+            '&:hover': { bgcolor: '#6CA748' },
             textTransform: 'none',
           }}
         >
@@ -353,9 +352,9 @@ export default function KosaricaPage() {
                       border: '2px solid transparent',
                       transition: 'all 0.3s',
                       '&:hover': {
-                        color: 'primary.main',
+                        color: '#6CA748',
                         bgcolor: 'transparent',
-                        borderColor: 'primary.main',
+                        borderColor: '#6CA748',
                       },
                     }}
                   >
@@ -424,7 +423,7 @@ export default function KosaricaPage() {
                       <Image
                         src={izdelek.Slika || "/168.jpg"}
                         alt={izdelek.Ime}
-                        layout="fill" // Corrected from `fill` to `layout="fill"`
+                        fill
                         style={{ objectFit: 'contain' }}
                         sizes="(max-width: 768px) 100vw, 50vw" />
                     </Box>
@@ -576,7 +575,7 @@ export default function KosaricaPage() {
           </Box>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
-              {/* &copy; {new Date().getFullYear()} parket-ravbar.com | <Link href="/piskotki" color="inherit">Piškotki</Link> */}
+              &copy; {new Date().getFullYear()} parket-ravbar.com | <Link href="/piskotki" color="inherit">Piškotki</Link>
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
               Lovro Ravbar

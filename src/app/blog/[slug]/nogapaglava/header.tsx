@@ -46,9 +46,9 @@ export default function Header() {
                                             border: '2px solid transparent',
                                             transition: 'all 0.3s',
                                             '&:hover': {
-                                                color: 'primary.main',
+                                                color: '#6CA748',
                                                 bgcolor: 'transparent',
-                                                borderColor: 'primary.main',
+                                                borderColor: '#6CA748',
                                             },
                                         }}
                                     >
