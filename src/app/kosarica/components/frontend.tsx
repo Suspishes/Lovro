@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowLeft, ShoppingCart, Trash, Plus, Minus, Facebook, MenuIcon, Phone } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Trash, Plus, Minus, Facebook, Phone } from 'lucide-react'
+import { Menu as MenuIcon } from 'lucide-react'
 import {
   Box,
   Typography,
@@ -423,7 +424,7 @@ export default function KosaricaPage() {
                       <Image
                         src={izdelek.Slika || "/168.jpg"}
                         alt={izdelek.Ime}
-                        fill
+                        layout="fill" // Corrected from `fill` to `layout="fill"`
                         style={{ objectFit: 'contain' }}
                         sizes="(max-width: 768px) 100vw, 50vw" />
                     </Box>
