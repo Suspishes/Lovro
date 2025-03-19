@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
+        <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Box sx={{ flexGrow: 1, mx: -22, display: 'flex', justifyContent: 'flex-start' }}>
@@ -66,11 +66,11 @@ export default function HomePage() {
                 </IconButton>
               ) : (
                 <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
-                  {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
                     <Button
                       key={text}
                       component={Link}
-                      href={`/${text.toLowerCase().replace(' ', '')}`}
+                      href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                       sx={{
                         color: 'white',
                         mx: 1,
@@ -102,11 +102,11 @@ export default function HomePage() {
           onClose={() => setIsMenuOpen(false)}
         >
           <List>
-            {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
+            {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
               <ListItem
                 key={text}
                 component={Link}
-                href={`/${text.toLowerCase().replace(' ', '')}`}
+                href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ListItemText primary={text} />
@@ -145,7 +145,12 @@ export default function HomePage() {
               <Typography variant="h5" paragraph>
                 Z več kot 20 leti izkušenj vam zagotavljamo vrhunske rezultate
               </Typography>
-              <Button variant="contained" color="primary" size="large" sx={{ color: 'common.white' }}>
+              <Button
+                href="/kontakt"
+                variant="contained"
+                size="large"
+                sx={{ mt: 2, color: "white" }}
+              >
                 Kontaktirajte nas
               </Button>
             </Box>
@@ -164,7 +169,12 @@ export default function HomePage() {
                   Specializirani smo za polaganje, obnovo in vzdrževanje vseh vrst parketa. Naš tim izkušenih strokovnjakov združuje tradicionalne tehnike z najnovejšimi tehnologijami, kar zagotavlja vrhunske rezultate pri vsakem projektu, ne glede na njegovo velikost ali zahtevnost.
                 </Typography>
                 <Box textAlign="center">
-                  <Button variant="contained" color="primary" sx={{ color: 'white'}}>
+                  <Button
+                    href="/kontakt"
+                    variant="contained"
+                    size="large"
+                    sx={{ mt: 2, color: "white" }}
+                  >
                     Izvedi več
                   </Button>
                 </Box>
@@ -446,7 +456,7 @@ export default function HomePage() {
               />
             </Box>
             <Box sx={{ mt: 4, bgcolor: 'primary.main', color: 'primary.contrastText', p: 3, borderRadius: 2 }}>
-              <Typography align="center" sx={{ color: 'white', fontWeight: 'bold'}}>
+              <Typography align="center" sx={{ color: 'white', fontWeight: 'bold' }}>
                 Poleg tega smo uspešno izvedli projekte v več kot 300 hišah in stanovanjih po Sloveniji in širše.
               </Typography>
             </Box>
@@ -492,7 +502,7 @@ export default function HomePage() {
                         Katero talno oblogo izbrati?
                       </Typography>
                       <Typography variant="body2" color="text.secondary" paragraph>
-                        Ste v dilemi katero talno oblogo izbrat, ki bi vam služila dolgotrajno? Pravzaprav tu ni nobene dileme – edina prava rešitev je parket!                      
+                        Ste v dilemi katero talno oblogo izbrat, ki bi vam služila dolgotrajno? Pravzaprav tu ni nobene dileme – edina prava rešitev je parket!
                       </Typography>
                       <Button component={Link} href="/novice/vzdrzevanje-poleti" variant="contained" color="primary" sx={{ color: 'white' }}>
                         Preberi več

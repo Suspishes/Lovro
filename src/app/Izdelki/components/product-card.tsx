@@ -139,7 +139,7 @@ export default function ProductCard({ izdelek }: ProductCardProps) {
               }
             }}
           >
-            <Typography color="white">Poglej izdelek</Typography>
+          Poglej izdelek
           </Button>
         </CardActions>
       </Card>

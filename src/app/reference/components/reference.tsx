@@ -105,11 +105,11 @@ export default function Reference() {
                 </IconButton>
               ) : (
                 <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
-                  {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
                     <Button
                       key={text}
                       component={Link}
-                      href={`/${text.toLowerCase().replace(' ', '')}`}
+                      href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                       sx={{
                         color: 'white',
                         mx: 1,
@@ -141,11 +141,11 @@ export default function Reference() {
           onClose={() => setIsMenuOpen(false)}
         >
           <List>
-            {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
+            {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
               <ListItem
                 key={text}
                 component={Link}
-                href={`/${text.toLowerCase().replace(' ', '')}`}
+                href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ListItemText primary={text} />
@@ -224,10 +224,10 @@ export default function Reference() {
               <Typography variant="h3" component="h2" align="center" gutterBottom>
                 Naše cenjene stranke
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={3}>
                 {clients.map((client, index) => (
                   <Grid item key={index} xs={12} sm={6} md={4}>
-                    <Card sx={{ height: '100%' }}>
+                    <Card sx={{ height: '100%', border: '2px solid #6CA748' }}>
                       <CardContent>
                         <Typography variant="body1" align="center">
                           {client}
@@ -248,10 +248,10 @@ export default function Reference() {
               Kontaktirajte nas za brezplačen ogled ponudbe in svetovanje
             </Typography>
             <Button
+              href="/kontakt"
               variant="contained"
-              color="primary"
               size="large"
-              sx={{ mt: 2, color: "white"}}
+              sx={{ mt: 2, color: "white" }}
             >
               Kontaktirajte nas
             </Button>

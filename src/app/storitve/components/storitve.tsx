@@ -18,10 +18,12 @@ import {
   CardContent,
   CardMedia,
   Box,
-  useMediaQuery
+  useMediaQuery,
+  colors
 } from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Menu as MenuIcon, Close as CloseIcon, Phone, Email, Facebook, LocationOn } from '@mui/icons-material';
+import { object } from 'zod';
 
 const theme = createTheme({
   palette: {
@@ -42,33 +44,33 @@ export default function Storitve() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const services = [
-    { 
-      title: 'Polaganje parketa', 
+    {
+      title: 'Polaganje parketa',
       description: 'Strokovno polaganje vseh vrst parketa, vključno z masivnim, večslojnim in laminatnim parketom.',
       image: '/polaganje.png'
     },
-    { 
-      title: 'Brušenje parketa', 
+    {
+      title: 'Brušenje parketa',
       description: 'Obnova in osvežitev obstoječega parketa s profesionalnim brušenjem in glajanjem.',
       image: '/brusenje.jpg'
     },
-    { 
-      title: 'Lakiranje parketa', 
+    {
+      title: 'Lakiranje parketa',
       description: 'Zaščita in izboljšanje videza parketa z visokokakovostnimi laki in olji.',
       image: '/lakiranje.jpg'
     },
-    { 
-      title: 'Oljenje parketa', 
+    {
+      title: 'Oljenje parketa',
       description: 'Naravna zaščita in nega parketa z uporabo vrhunskih olj za les.',
       image: '/oljenje.jpg'
     },
-    { 
-      title: 'Obnova starega parketa', 
+    {
+      title: 'Obnova starega parketa',
       description: 'Celovita obnova in restavracija starejših parketnih površin.',
       image: '/polaganje.jpg'
     },
-    { 
-      title: 'Vzdrževanje parketa', 
+    {
+      title: 'Vzdrževanje parketa',
       description: 'Redni pregledi in vzdrževalna dela za dolgotrajno ohranjanje kakovosti parketa.',
       image: '/vzdrzevanje.png'
     },
@@ -77,7 +79,7 @@ export default function Storitve() {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
+        <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
           <Container maxWidth="lg">
             <Toolbar disableGutters>
               <Box sx={{ flexGrow: 1, mx: -22, display: 'flex', justifyContent: 'flex-start' }}>
@@ -98,11 +100,11 @@ export default function Storitve() {
                 </IconButton>
               ) : (
                 <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
-                  {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
                     <Button
                       key={text}
                       component={Link}
-                      href={`/${text.toLowerCase().replace(' ', '')}`}
+                      href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                       sx={{
                         color: 'white',
                         mx: 1,
@@ -134,11 +136,11 @@ export default function Storitve() {
           onClose={() => setIsMenuOpen(false)}
         >
           <List>
-            {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
+            {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
               <ListItem
                 key={text}
                 component={Link}
-                href={`/${text.toLowerCase().replace(' ', '')}`}
+                href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ListItemText primary={text} />
@@ -182,7 +184,7 @@ export default function Storitve() {
 
           <Container maxWidth="lg" sx={{ py: 8 }}>
             <Typography variant="h3" component="h2" align="center" gutterBottom>
-              Kaj ponujamo
+              Kaj ponujamo?
             </Typography>
             <Grid container spacing={4}>
               {services.map((service, index) => (
@@ -190,17 +192,36 @@ export default function Storitve() {
                   <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <CardMedia
                       component="img"
-                      height="200"
                       image={service.image}
                       alt={service.title}
+                      style={{
+                        objectFit: 'cover',
+                        objectPosition: 'center',
+                        width: '100%',
+                        height: '225px',
+                      }}
                     />
-                    <CardContent sx={{ flexGrow: 1 }}>
+                    <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                       <Typography gutterBottom variant="h5" component="h3">
                         {service.title}
                       </Typography>
                       <Typography>
                         {service.description}
                       </Typography>
+                      <Box sx={{ mt: 'auto', textAlign: 'center' }}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          href="/kontakt"
+                          size='large'
+                          sx={{
+                            mt: 4,
+                            color: 'white',
+                          }}
+                        >
+                          Pošlji povpraševanje
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -245,7 +266,6 @@ export default function Storitve() {
               Kontaktirajte nas za brezplačen ogled in ponudbo
             </Typography>
             <Button
-              component={Link}
               href="/kontakt"
               variant="contained"
               size="large"
@@ -286,7 +306,7 @@ export default function Storitve() {
                 <Typography variant="body2" align="right">
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                     <Link href="https://www.facebook.com/parketarstvoravbar" target="_blank" rel="noopener noreferrer" color="inherit">
-                      <Facebook sx={{ mr: 1}} /> Facebook
+                      <Facebook sx={{ mr: 1 }} /> Facebook
                     </Link>
                   </Box>
                 </Typography>

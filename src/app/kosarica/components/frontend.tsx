@@ -12,7 +12,16 @@ import {
   Grid,
   Paper,
   IconButton,
-  TextField
+  TextField,
+  createTheme,
+  useMediaQuery,
+  ThemeProvider,
+  AppBar,
+  Toolbar,
+  List,
+  Drawer,
+  ListItem,
+  ListItemText
 } from "@mui/material"
 import { useKosaricaStore } from './backend'
 import { loadStripe } from '@stripe/stripe-js'
@@ -22,6 +31,21 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js'
+import { Email, Facebook, LocationOn, Phone, Close as CloseIcon, Menu as MenuIcon } from '@mui/icons-material'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6CA748',
+    },
+    secondary: {
+      main: '#5A8E3A',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+});
 
 const stripePromise = loadStripe("nek jak kluc");
 
@@ -222,6 +246,7 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
           variant="contained"
           disabled={!stripe || loading}
           sx={{
+            color: 'white',
             bgcolor: '#6CA748',
             '&:hover': { bgcolor: '#5A8E3A' },
             textTransform: 'none'
@@ -235,6 +260,9 @@ const StripeCheckoutForm = ({ skupnaCena, onSuccess, onClose }: StripeCheckoutFo
 }
 
 export default function KosaricaPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const kosarica = useKosaricaStore((state) => state.kosarica)
   const odstraniIzdelek = useKosaricaStore((state) => state.odstraniIzdelek)
   const povecajKolicino = useKosaricaStore((state) => state.povecajKolicino)
@@ -254,152 +282,280 @@ export default function KosaricaPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Link href="/Izdelki" passHref>
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: '#6CA748',
-            color: '#fff',
-            '&:hover': { bgcolor: '#5A8E3A' },
-            mb: 4
-          }}
-          startIcon={<ArrowLeft />}
-        >
-          Nazaj na izdelke
-        </Button>
-      </Link>
-      <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 4, color: '#1f2937' }}>
-        Vaša košarica
-      </Typography><Grid container spacing={4}>
-        <Grid item xs={12} md={8}>
-          {kosarica.map((izdelek) => (
-            <Paper
-              key={izdelek.IzdelkiID}
-              sx={{ mb: 3, p: 3, bgcolor: '#fff', borderRadius: 2, boxShadow: 3 }}
-            >
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={4}>
-                  <Box
+    <ThemeProvider theme={theme}>
+      <AppBar position="relative" sx={{ bgcolor: '#1f2937', boxShadow: 2, py: 2 }}>
+        <Container maxWidth="lg">
+          <Toolbar disableGutters>
+            <Box sx={{ flexGrow: 1, mx: -22, display: 'flex', justifyContent: 'flex-start' }}>
+              <Link href="/" passHref>
+                <Box component="a" sx={{ display: 'inline-block' }}>
+                  <img src="/C1_LOGOTIP RAVBAR_vodoraven_ no 01.png" alt="Ravbar Parketarstvo Logo" style={{ height: 64, width: 'auto' }} />
+                </Box>
+              </Link>
+            </Box>
+            {isMobile ? (
+              <IconButton
+                edge="end"
+                color="inherit"
+                aria-label="menu"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
+              </IconButton>
+            ) : (
+              <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
+                {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  <Button
+                    key={text}
+                    component={Link}
+                    href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                     sx={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '150px',
-                      bgcolor: '#f5f5f5',
-                      borderRadius: 2
+                      color: 'white',
+                      mx: 1,
+                      px: 2,
+                      py: 1,
+                      borderRadius: '4px',
+                      fontWeight: 'normal',
+                      border: '2px solid transparent',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        color: 'primary.main',
+                        bgcolor: 'transparent',
+                        borderColor: 'primary.main',
+                      },
                     }}
                   >
-                    <Image
-                      src={izdelek.Slika || "/168.jpg"}
-                      alt={izdelek.Ime}
-                      fill
-                      style={{ objectFit: 'contain' }}
-                      sizes="(max-width: 768px) 100vw, 50vw" />
-                  </Box>
-                </Grid>
+                    {text}
+                  </Button>
+                ))}
+              </Box>
+            )}
+          </Toolbar>
+        </Container>
+      </AppBar>
 
-                <Grid item xs={12} sm={8}>
-                  <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1, color: '#1f2937' }}>
-                    {izdelek.Ime}
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: '#666', mb: 2 }}>
-                    Cena: {izdelek.Cena.toFixed(2).replace(".", ",")} €
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <IconButton sx={{ color: '#6CA748' }} onClick={() => zmanjsajKolicino(izdelek.IzdelkiID)}>
-                      <Minus />
-                    </IconButton>
-                    <Typography variant="body1" sx={{ mx: 2, fontWeight: 'bold' }}>
-                      {izdelek.KolicinaVKosarici}
-                    </Typography>
-                    <IconButton sx={{ color: '#6CA748' }} onClick={() => povecajKolicino(izdelek.IzdelkiID)}>
-                      <Plus />
-                    </IconButton>
-                  </Box>
-                  <IconButton
-                    sx={{ color: '#c62828', '&:hover': { bgcolor: '#ffebee' } }}
-                    onClick={() => odstraniIzdelek(izdelek.IzdelkiID)}
-                  >
-                    <Trash />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </Paper>
-          ))}
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, boxShadow: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#1f2937' }}>
-              Povzetek košarice
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="body1" sx={{ color: '#666' }}>
-                Skupna cena:
-              </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#1f2937' }}>
-                {skupnaCena.toFixed(2).replace(".", ",")} €
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              fullWidth
-              startIcon={<ShoppingCart />}
-              sx={{
-                bgcolor: '#6CA748',
-                color: '#fff',
-                py: 2,
-                fontSize: '1.25rem',
-                '&:hover': { bgcolor: '#5A8E3A' }
-              }}
-              onClick={() => setShowCheckout(true)}
+      <Drawer
+        anchor="right"
+        open={isMobile && isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      >
+        <List>
+          {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
+            <ListItem
+              key={text}
+              component={Link}
+              href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
+              onClick={() => setIsMenuOpen(false)}
             >
-              Zaključi nakup
-            </Button>
-          </Paper>
-        </Grid>
-      </Grid>
-
-      {
-        showCheckout && (
-          <Box
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Link href="/Izdelki" passHref>
+          <Button
+            variant="contained"
             sx={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              bgcolor: 'rgba(0,0,0,0.5)',
-              zIndex: 1300,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              bgcolor: '#6CA748',
+              color: '#fff',
+              '&:hover': { bgcolor: '#5A8E3A' },
+              mb: 4
             }}
+            startIcon={<ArrowLeft />}
           >
+            Nazaj na izdelke
+          </Button>
+        </Link>
+        <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 4, color: '#1f2937' }}>
+          Vaša košarica
+        </Typography><Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
+            {kosarica.map((izdelek) => (
+              <Paper
+                key={izdelek.IzdelkiID}
+                sx={{ mb: 3, p: 3, bgcolor: '#fff', borderRadius: 2, boxShadow: 3 }}
+              >
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={4}>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '150px',
+                        bgcolor: '#f5f5f5',
+                        borderRadius: 2
+                      }}
+                    >
+                      <Image
+                        src={izdelek.Slika || "/168.jpg"}
+                        alt={izdelek.Ime}
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        sizes="(max-width: 768px) 100vw, 50vw" />
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12} sm={8}>
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1, color: '#1f2937' }}>
+                      {izdelek.Ime}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: '#666', mb: 2 }}>
+                      Cena: {izdelek.Cena.toFixed(2).replace(".", ",")} €
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <IconButton sx={{ color: '#6CA748' }} onClick={() => zmanjsajKolicino(izdelek.IzdelkiID)}>
+                        <Minus />
+                      </IconButton>
+                      <Typography variant="body1" sx={{ mx: 2, fontWeight: 'bold' }}>
+                        {izdelek.KolicinaVKosarici}
+                      </Typography>
+                      <IconButton sx={{ color: '#6CA748' }} onClick={() => povecajKolicino(izdelek.IzdelkiID)}>
+                        <Plus />
+                      </IconButton>
+                    </Box>
+                    <IconButton
+                      sx={{ color: '#c62828', '&:hover': { bgcolor: '#ffebee' } }}
+                      onClick={() => odstraniIzdelek(izdelek.IzdelkiID)}
+                    >
+                      <Trash />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </Paper>
+            ))}
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper sx={{ p: 3, bgcolor: '#fff', borderRadius: 2, boxShadow: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#1f2937' }}>
+                Povzetek košarice
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="body1" sx={{ color: '#666' }}>
+                  Skupna cena:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#1f2937' }}>
+                  {skupnaCena.toFixed(2).replace(".", ",")} €
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                fullWidth
+                startIcon={<ShoppingCart />}
+                sx={{
+                  bgcolor: '#6CA748',
+                  color: '#fff',
+                  py: 2,
+                  fontSize: '1.25rem',
+                  '&:hover': { bgcolor: '#5A8E3A' }
+                }}
+                onClick={() => setShowCheckout(true)}
+              >
+                Zaključi nakup
+              </Button>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        {
+          showCheckout && (
             <Box
               sx={{
-                bgcolor: 'white',
-                p: 4,
-                borderRadius: 2,
-                maxWidth: 500,
-                width: '90%',
-                position: 'relative'
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                bgcolor: 'rgba(0,0,0,0.5)',
+                zIndex: 1300,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
-                Plačilo s kreditno kartico
-              </Typography>
-              <Elements stripe={stripePromise}>
-                <StripeCheckoutForm
-                  skupnaCena={skupnaCena}
-                  onSuccess={handlePaymentSuccess}
-                  onClose={() => setShowCheckout(false)}
-                />
-              </Elements>
+              <Box
+                sx={{
+                  bgcolor: 'white',
+                  p: 4,
+                  borderRadius: 2,
+                  maxWidth: 500,
+                  width: '90%',
+                  position: 'relative'
+                }}
+              >
+                <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#1f2937' }}>
+                  Plačilo s kreditno kartico
+                </Typography>
+                <Elements stripe={stripePromise}>
+                  <StripeCheckoutForm
+                    skupnaCena={skupnaCena}
+                    onSuccess={handlePaymentSuccess}
+                    onClose={() => setShowCheckout(false)}
+                  />
+                </Elements>
+              </Box>
             </Box>
+          )
+        }
+
+      </Container >
+      <Box component="footer" sx={{ bgcolor: '#1f2937', color: 'common.white', py: 6 }}>
+        <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Typography sx={{ fontWeight: 'bold' }}>
+                Parketarstvo Ravbar
+              </Typography>
+              <Typography variant="body2">
+                K Roku 139
+                <br />
+                8000, Novo Mesto
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <img src="/C1_LOGOTIP RAVBAR_vodoraven_ no 01.png" alt="Ravbar Parketarstvo Logo" style={{ height: 80 }} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Typography variant="body2" align="right">
+                <Link href="tel:041726602" color="inherit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <Phone sx={{ mr: 1 }} /> 041 726 602
+                </Link>
+              </Typography>
+              <Typography variant="body2" align="right">
+                <Link href="mailto:info@parket-ravbar.com" color="inherit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <Email sx={{ mr: 1 }} /> info@parket-ravbar.com
+                </Link>
+              </Typography>
+              <Typography variant="body2" align="right">
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <Link href="https://www.facebook.com/parketarstvoravbar" target="_blank" rel="noopener noreferrer" color="inherit">
+                    <Facebook sx={{ mr: 1 }} /> Facebook
+                  </Link>
+                </Box>
+              </Typography>
+              <Typography variant="body2" align="right">
+                <Link href="#" color="inherit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <LocationOn sx={{ mr: 1 }} /> Prikaži zemljevid
+                </Link>
+              </Typography>
+            </Grid>
+          </Grid>
+          <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Typography variant="h6">
+              LES JE NARAVEN, PUSTIMO DA TAK TUDI OSTANE
+            </Typography>
           </Box>
-        )
-      }
-    </Container >
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2">
+              &copy; {new Date().getFullYear()} parket-ravbar.com | <Link href="/piskotki" color="inherit">Piškotki</Link>
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Lovro Ravbar
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    </ThemeProvider>
   )
 }

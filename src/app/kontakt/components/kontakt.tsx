@@ -98,11 +98,11 @@ export default function Kontakt() {
                 </IconButton>
               ) : (
                 <Box component="nav" sx={{ display: 'flex', mx: -22, justifyContent: 'flex-end' }}>
-                  {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
+                  {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text, index) => (
                     <Button
                       key={text}
                       component={Link}
-                      href={`/${text.toLowerCase().replace(' ', '')}`}
+                      href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                       sx={{
                         color: 'white',
                         mx: 1,
@@ -134,11 +134,11 @@ export default function Kontakt() {
           onClose={() => setIsMenuOpen(false)}
         >
           <List>
-            {['O NAS', 'STORITVE', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
+            {['O NAS', 'STORITVE', 'IZDELKI', 'REFERENCE', 'NOVICE', 'KONTAKT'].map((text) => (
               <ListItem
                 key={text}
                 component={Link}
-                href={`/${text.toLowerCase().replace(' ', '')}`}
+                href={text === 'IZDELKI' ? '/Izdelki' : `/${text.toLowerCase().replace(' ', '')}`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ListItemText primary={text} />
@@ -165,7 +165,7 @@ export default function Kontakt() {
               </Typography>
               <Button
                 variant="contained"
-                sx={{ bgcolor: 'primary.main', mr: 2 }}
+                sx={{ bgcolor: 'primary.main', m: 2, color: 'white' }}
               >
                 Pokličite nas
               </Button>
