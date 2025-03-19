@@ -13,7 +13,7 @@ interface PaymentRequest {
     }
 }
 
-const stripe = new Stripe('kluc', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-02-24.acacia', // Updated API version
     typescript: true
 })

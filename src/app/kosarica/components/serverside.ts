@@ -1,57 +1,65 @@
+"use server "
 import { db } from "~/server/db";
-import { Narocila, Stranka } from "@prisma/client";
-import { Izdelek } from "./backend";
+import type { Narocila, Stranka, Izdelki } from "@prisma/client";
 
-export async function saveOrderAndCustomer(stranka: Stranka, order: Narocila, izdelki: Izdelek[]) {
+export async function saveOrderAndCustomer(
+    stranka: Stranka,
+    order: Narocila,
+    izdelki: Izdelki[]
 ) {
-        try {
-            const stranka = await db.stranka.upsert({
-                where: { Email: customer.Email ?? "" },
-                update: {
-                    Ime: customerData.Ime,
-                    Priimek: customerData.Priimek,
-                    Telefon: customerData.Telefon,
-                    Naslov: customerData.Naslov,
-                },
-                create: {
-                    Ime: customerData.Ime,
-                    Priimek: customerData.Priimek,
-                    Email: customerData.Email ?? "",
-                    Telefon: customerData.Telefon,
-                    Naslov: customerData.Naslov,
-                },
-            });
+    try {
+        // Fixed typo from 'costumer' to 'customer'
+        const customer = await db.stranka.upsert({
+            where: { Email: stranka.Email ?? "" },
+            update: {
+                Ime: stranka.Ime,
+                Priimek: stranka.Priimek,
+                Telefon: stranka.Telefon,
+                Naslov: stranka.Naslov,
+            },
+            create: {
+                Ime: stranka.Ime,
+                Priimek: stranka.Priimek,
+                Telefon: stranka.Telefon,
+                Naslov: stranka.Naslov,
+                Email: stranka.Email ?? "",
+            },
+        });
 
-            // Ustvari novo naročilo s povezanimi izdelki
-            const order = await db.narocila.create({
+        // Create order with connected products
+        const newOrder = await db.narocila.create({ // Renamed variable from 'order' to avoid conflict
+            data: {
+                StrankaID: customer.StrankaID,
+                Datum: order.Datum,
+                Status: order.Status,
+                Cena: order.Cena, // Added missing required field
+                Izdelki: {
+                    connect: izdelki.map(izdelek => ({ // Fixed variable name casing
+                        IzdelkiID: izdelek.IzdelkiID
+                    }))
+                }
+            },
+            include: {
+                Izdelki: true
+            }
+        });
+
+        // Update product quantities
+        for (const izdelek of izdelki) {
+            await db.izdelki.update({
+                where: { IzdelkiID: izdelek.IzdelkiID },
                 data: {
-                    StrankaID: customer.StrankaID,
-                    Datum: orderData.Datum,
-                    Status: orderData.Status,
-                    Izdelki: {
-                        connect: orderData.Izdelki.map(izdelek => ({
-                            IzdelkiID: izdelek.IzdelkiID
-                        }))
+                    Kolicina: {
+                        decrement: izdelek.Kolicina
                     }
-                },
-                include: {
-                    Izdelki: true
                 }
             });
-
-            // Posodobi količine izdelkov v zalogi
-            for (const izdelek of orderData.Izdelki) {
-                await db.izdelki.update({
-                    where: { IzdelkiID: izdelek.IzdelkiID },
-                    data: {
-                        Kolicina: {
-                            decrement: izdelek.Kolicina
-                        }
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Napaka pri shranjevanju:', error);
-            throw new Error('Napaka pri obdelavi naročila');
         }
+
+        return newOrder;
+
+    } catch (error) {
+        console.error('Napaka pri shranjevanju:', error);
+        throw new Error('Napaka pri obdelavi naročila');
     }
+}
